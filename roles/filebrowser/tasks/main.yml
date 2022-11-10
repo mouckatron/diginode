@@ -1,0 +1,38 @@
+- shell:
+    cmd: curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
+    creates: /usr/local/bin/filebrowser
+
+- file:
+    path: /etc/filebrowser
+    state: directory
+    mode: 0755
+    owner: pi
+    group: pi
+
+- systemd:
+    name: filebrowser
+    state: stopped
+  ignore_errors: true  # if this is the first time through, it will not exist yet
+
+- shell:
+    cmd: filebrowser -c /etc/filebrowser/system.yml config init
+    creates: /etc/filebrowser/filebrowser.db
+  become_user: pi
+
+- shell:
+    cmd: filebrowser config set --auth.method=noauth
+    chdir: /etc/filebrowser
+  become_user: pi
+
+- copy:
+    src: filebrowser.service
+    dest: /etc/systemd/system/filebrowser.service
+    mode: 0644
+    owner: root
+    group: root
+
+- systemd:
+    daemon_reload: true
+    name: filebrowser
+    enabled: true
+    state: started

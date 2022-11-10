@@ -1,0 +1,41 @@
+- file:
+    path: /opt/{{ item }}
+    state: directory
+    owner: pi
+    group: pi
+    mode: 0755
+  loop:
+    - pwmfan
+    - temperature
+
+- copy:
+    src: "{{ item.name }}"
+    dest: "{{ item.path }}/{{item.name}}"
+  loop:
+    - name: pwm_fan.py
+      path: /opt/pwmfan
+    - name: pwm_fan.service
+      path: /lib/systemd/system
+    - name: temperature_to_mqtt.py
+      path: /opt/temperature
+    - name: requirements.txt
+      path: /opt/temperature
+    - name: temperature.service
+      path: /lib/systemd/system
+
+- file:
+    src: /lib/systemd/system/{{ item }}
+    dest: /etc/systemd/system/{{ item }}
+    state: link
+  loop:
+    - pwm_fan.service
+    - temperature.service
+
+- systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+  loop:
+    - pwm_fan
+    - temperature

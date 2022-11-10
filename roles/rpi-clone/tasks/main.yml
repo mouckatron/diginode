@@ -1,0 +1,5 @@
+---
+- name: Clone rpi-clone
+  ansible.builtin.git:
+    repo: 'https://github.com/billw2/rpi-clone.git'
+    dest: /opt/rpi-clone

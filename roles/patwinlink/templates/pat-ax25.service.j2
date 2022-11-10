@@ -1,0 +1,12 @@
+[Unit]
+Description=AX.25 winlink TNC client
+#Requires=ax25.service
+#After=ax25.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+ExecStartPre=/usr/local/bin/pat_preflight.sh
+ExecStopPost=/usr/local/bin/pat_postflight.sh
+ExecStart=pat http -a 0.0.0.0:8080

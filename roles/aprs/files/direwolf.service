@@ -1,0 +1,10 @@
+[Unit]
+Description=Direwolf AX.25 TNC
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStartPre=/usr/local/bin/direwolf_preflight.sh
+ExecStopPost=/usr/local/bin/direwolf_postflight.sh
+ExecStart=direwolf -X 16 -p -c /etc/direwolf/direwolf.conf

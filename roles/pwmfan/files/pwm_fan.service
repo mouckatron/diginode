@@ -1,0 +1,11 @@
+[Unit]
+Description=pwm_fan
+
+[Service]
+Type=simple
+User=pi
+ExecStart=python3 /opt/pwmfan/pwm_fan.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

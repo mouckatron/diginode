@@ -1,0 +1,91 @@
+- apt:
+    name:
+      - hostapd
+      - dnsmasq
+      - dns-root-data
+    state: latest
+
+- apt:
+    name:
+      - network-manager
+    state: absent
+
+- systemd:
+    name: hostapd
+    enabled: false
+    masked: false
+
+- systemd:
+    name: dnsmasq
+    enabled: false
+
+- template:
+    src: hostapd.conf
+    dest: /etc/hostapd/hostapd.conf
+    mode: 0644
+    owner: root
+    group: root
+
+- lineinfile:
+    path: /etc/default/hostapd
+    line: DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+- blockinfile:
+    path: /etc/dnsmasq.conf
+    block: |
+      #AutoHotspot Config
+      #stop DNSmasq from using resolv.conf
+      no-resolv
+      #Interface to use
+      interface=wlan0
+      bind-interfaces
+      dhcp-range=10.0.0.50,10.0.0.150,1h
+  when: ansible_hostname != 'centralops'
+
+- blockinfile:
+    path: /etc/dnsmasq.conf
+    block: |
+      #AutoHotspot Config
+      #stop DNSmasq from using resolv.conf
+      no-resolv
+      #Interface to use
+      interface=wlan0
+      bind-interfaces
+      dhcp-range=192.168.0.200,192.168.0.250,1h
+      dhcp-host=B8:27:EB:40:A5:C4,192.168.0.141
+      dhcp-host=E4:5F:01:1D:B5:3B,192.168.0.142
+      dhcp-host=B8:27:EB:86:7C:AA,192.168.0.143
+  when: ansible_hostname == 'centralops'
+
+- lineinfile:
+    path: /etc/dhcpcd.conf
+    line: nohook wpa_supplicant
+
+- template:
+    src: autohotspot.service
+    dest: /etc/systemd/system/autohotspot.service
+    mode: 0644
+    owner: root
+    group: root
+
+- systemd:
+    name: autohotspot.service
+    enabled: true
+
+- copy:
+    src: autohotspot
+    dest: /usr/bin/autohotspot
+    mode: 0755
+    owner: root
+    group: root
+
+- copy:
+    src: autohotspot.timer
+    dest: /etc/systemd/system/autohotspot.timer
+    mode: 0644
+    owner: root
+    group: root
+
+- systemd:
+    name: autohotspot.timer
+    enabled: true

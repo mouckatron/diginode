@@ -1,0 +1,42 @@
+---
+- apt:
+    name:
+      - ax25-apps
+      - ax25-tools
+      - libax25
+
+- name: ax25 ports
+  block:
+    - file:
+        path: /etc/ax25
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - lineinfile:
+        path: /etc/ax25/axports
+        line: 'wl2k {{ callsign }} 0 255 7 Winlink'
+        create: true
+
+- name: ax25 config
+  blockinfile:
+    path: /etc/default/ax25
+    create: true
+    block: |
+      AXPORT=wl2k
+      HBAUD=1200
+      DEV=/tmp/kisstnc
+
+- name: Service files
+  copy:
+    src: '{{ item }}'
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - ax25.service
+
+- name: reload systemd
+  systemd:
+    daemon_reload: true

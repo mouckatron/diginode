@@ -1,0 +1,87 @@
+---
+- apt:
+    name:
+      - git
+      - gcc
+      - g++
+      - make
+      - cmake
+      - libasound2-dev
+      - libudev-dev
+      - libax25
+      - ax25-apps
+      - ax25-tools
+    state: latest
+
+- shell: which direwolf
+  register: direwolf_installed
+  ignore_errors: true
+
+- when: direwolf_installed.rc != 0 or (direwolf_update is defined and direwolf_update == 'true')
+  block:
+  - git:
+      repo: 'https://github.com/wb2osz/direwolf.git'
+      dest: /home/pi/direwolf.git
+      update: false
+    become_user: pi
+
+  - file:
+      path: /home/pi/direwolf.git/build
+      state: directory
+    become_user: pi
+
+  - shell:
+      chdir: /home/pi/direwolf.git/build
+      cmd: cmake ..
+    become_user: pi
+
+  - shell:
+      chdir: /home/pi/direwolf.git/build
+      cmd: make -j4
+    become_user: pi
+
+  - shell:
+      chdir: /home/pi/direwolf.git/build
+      cmd: make install
+
+- file:
+    path: /etc/direwolf
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- template:
+    src: '{{ item }}'
+    dest: '/etc/direwolf/{{ item }}'
+    mode: 0755
+    owner: pi
+    group: pi
+  loop:
+    - run_aprs.sh
+    - direwolf.conf
+
+- name: pre/post flight scripts
+  template:
+    src: '{{ item }}'
+    dest: /usr/local/bin/{{ item }}
+    mode: 0755
+    owner: root
+    group: root
+  loop:
+    - direwolf_preflight.sh
+    - direwolf_postflight.sh
+
+- name: Service files
+  copy:
+    src: '{{ item }}'
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - direwolf.service
+
+- name: reload systemd
+  systemd:
+    daemon_reload: true

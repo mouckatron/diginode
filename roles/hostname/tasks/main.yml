@@ -1,0 +1,11 @@
+- lineinfile:
+    path: /etc/hostname
+    line: "{{ hostname }}"
+    regex: '.*'
+
+- shell: hostname "{{ hostname }}"
+
+- lineinfile:
+    path: /etc/hosts
+    line: "127.0.1.1       {{ hostname }}"
+    regex: "127.0.1.1.*"

@@ -1,0 +1,4 @@
+- apt:
+    name:
+      - cockpit
+    state: latest

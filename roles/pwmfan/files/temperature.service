@@ -1,0 +1,11 @@
+[Unit]
+Description=temperature
+
+[Service]
+Type=simple
+User=pi
+ExecStart=python3 /opt/temperature/temperature_to_mqtt.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

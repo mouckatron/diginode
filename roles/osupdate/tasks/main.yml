@@ -1,0 +1,4 @@
+- apt:
+    update_cache: true
+    name: "*"
+    state: latest

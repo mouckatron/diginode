@@ -1,0 +1,34 @@
+{
+  "mycall": "{{ callsign }}",
+  "secure_login_password": "{{ winlink_password }}",
+  "auxiliary_addresses": [],
+  "locator": "{{ gridsquare }}",
+  "service_codes": [
+    "PUBLIC"
+  ],
+  "http_addr": "0.0.0.0:8080",
+  "motd": [
+    "Open source Winlink client - getpat.io"
+  ],
+  "connect_aliases": {
+    "telnet": "telnet://{mycall}:CMSTelnet@cms.winlink.org:8772/wl2k"
+  },
+  "listen": ["ax25"],
+  "hamlib_rigs": {
+  },
+  "ax25": {
+    "port": "wl2k",
+    "beacon": {
+      "every": 3600,
+      "message": "Winlink P2P",
+      "destination": "IDENT"
+    }
+  },
+  "gpsd": {
+    "enable_http": true,
+    "use_server_time": false,
+    "addr": "localhost:2947"
+  },
+  "schedule": {},
+  "version_reporting_disabled": false
+}

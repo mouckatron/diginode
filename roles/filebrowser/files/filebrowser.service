@@ -1,0 +1,12 @@
+[Unit]
+Description=Web File Browser
+After=network.target
+
+[Service]
+User=pi
+Group=pi
+WorkingDirectory=/etc/filebrowser
+ExecStart=/usr/local/bin/filebrowser -a 0.0.0.0 -p 8081 -r /home/pi -b /filebrowser
+
+[Install]
+WantedBy=multi-user.target

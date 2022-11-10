@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Drive level into rig. Adjust if neccessary to get the ALC meter on your rig at around 30%.
+OUTPUT_VOL='59%'
+
+AUDIOCARD=$(aplay -l |grep -i 'USB Audio CODEC' |grep -o 'card [0-9]*')
+if [ "$(echo ${AUDIOCARD} |wc -l)" -lt "1" ]; then
+  echo 'Problem detecting USB audio card. Is the device plugged in?';
+  read -p 'Hit Enter or close this terminal window.' k; #TODO: Only show these prompts when launched from desktop
+  echo 'Exiting.';
+  exit
+fi
+CARDNUM=$(echo ${AUDIOCARD} |cut -d' ' -f2)
+echo 'Setting appropriate output volume level. If you find this is not driving your rig at the';
+echo 'right level (should be about 30% on your rigs ALC meter) use alsamixer to adjust accordingly.';
+echo 'You can also edit the OUTPUT_VOL variable at the top of this script for future runs.';
+amixer -c ${CARDNUM} set PCM ${OUTPUT_VOL} > /dev/null
+
+echo;
+
+pat http -a 0.0.0.0:8080 > /tmp/pat.log &
+#pat http -a 0.0.0.0:8080 & #comment out the above line and uncomment this if you want to expose pat to the rest of the network. INSECURE!
+#sensible-browser --user-data-dir='/tmp/pat-web-browser' --app='http://127.0.0.1:8080'; #really, the --user-data-dir is a chromium-browser flag...
+# sensible-browser --app='http://localhost:8080' > /dev/null 2>&1 &
+echo;
+echo "Pat web GUI has launched. If you don't see it, it may have opened in an existing browser window.";
+echo 'When finished, hit Enter or close this terminal window.';
+read k;
+
+echo 'Cleaning up...';
+#rm -rf /tmp/pat-web-browser;
+sudo killall pat;

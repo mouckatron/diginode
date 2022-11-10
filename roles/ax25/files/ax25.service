@@ -1,0 +1,10 @@
+[Unit]
+Description=AX.25 KISS interface
+Requires=direwolf.service
+After=direwolf.service
+
+[Service]
+EnvironmentFile=/etc/default/ax25
+Type=forking
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/share/pat/bin/axup ${DEV} ${AXPORT} ${HBAUD}

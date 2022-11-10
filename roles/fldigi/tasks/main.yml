@@ -1,0 +1,40 @@
+- apt:
+    name:
+      - libfltk1.3-dev
+      - libsamplerate0-dev
+      - libsndfile1-dev
+      - libportaudio2
+      - libusb-1.0-0-dev
+      - libudev-dev
+    state: latest
+
+# FLDIGI
+- get_url:
+    url: http://www.w1hkj.com/files/fldigi/fldigi-{{ fldigi_version }}.tar.gz
+    dest: /home/pi/Downloads/fldigi.tar.gz
+  tags: ['fldigi']
+
+- unarchive:
+    remote_src: true
+    src: /home/pi/Downloads/fldigi.tar.gz
+    dest: /home/pi/Downloads/
+    creates: /home/pi/Downlodas/fldigi-{{ fldigi_version }}
+  tags: ['fldigi']
+
+- shell:
+    cmd: ./configure
+    chdir: /home/pi/Downloads/fldigi-{{ fldigi_version }}
+  tags: ['fldigi']
+
+# FLRIG
+- get_url:
+    url: http://www.w1hkj.com/files/flrig/flrig-{{ flrig_version }}.tar.gz
+    dest: /home/pi/Downloads/fldigi.tar.gz
+  tags: ['flrig']
+
+- unarchive:
+    remote_src: true
+    src: /home/pi/Downloads/fldigi.tar.gz
+    dest: /home/pi/Downloads/
+    creates: /home/pi/Downloads/fldigi-{{ fldigi_version }}
+  tags: ['flrig']

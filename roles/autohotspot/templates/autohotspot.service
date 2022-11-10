@@ -1,0 +1,10 @@
+[Unit]
+Description=Automatically generates an internet Hotspot when a valid ssid is not in range
+After=multi-user.target
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/autohotspot {% if hotspot_host_ip is defined %}{{ hotspot_host_ip }}{% endif %}
+
+[Install]
+WantedBy=multi-user.target

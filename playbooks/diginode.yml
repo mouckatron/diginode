@@ -1,0 +1,22 @@
+- hosts: all
+  become: true
+  vars:
+    be_igate: false
+
+  roles:
+    - role: ../roles/osupdate
+      tags: ['base']
+    # - role: ../roles/wifi
+    #   tags: ['base', 'wifi']
+    # - role: ../roles/autohotspot
+    #   tags: ['wifi', 'hotspot']
+    - role: ../roles/aprs
+      tags: ['ham', 'aprs']
+    - role: ../roles/ax25
+      tags: ['ham', 'ax25']
+    - role: ../roles/patwinlink
+      tags: ['ham', 'pat']
+
+    # - role: ../roles/nginx
+    - role: ../roles/cockpit
+    # - role: ../roles/filebrowser

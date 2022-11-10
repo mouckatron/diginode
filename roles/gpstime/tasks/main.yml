@@ -1,0 +1,38 @@
+- apt:
+    name:
+      - gpsd
+      - gpsd-clients
+      - chrony
+      - pps-tools
+
+- name: Add GPS device
+  lineinfile:
+    path: /etc/default/gpsd
+    line: DEVICES="{{ gps_device }}"
+    regexp: '^DEVICES='
+
+- name: Set GPSd options
+  lineinfile:
+    path: /etc/default/gpsd
+    line: GPSD_OPTIONS="-n"
+    regexp: '^GPSD_OPTIONS='
+
+- systemd:
+    name: gpsd
+    state: restarted
+
+- name: Add GPSd to Chrony  # uses IC-705 GPS
+  lineinfile:
+    path: /etc/chrony/chrony.conf
+    line: refclock SHM 0 offset 0.5 delay 0.2 refid NMEA
+  when: ansible_hostname == 'portableops705'
+
+- name: Add GPSd to Chrony  # uses USB GPS
+  lineinfile:
+    path: /etc/chrony/chrony.conf
+    line: refclock SHM 0 refid GPS precision 1e-1 offset 0.9999 delay 0.2
+  when: ansible_hostname == 'portableops'
+
+- systemd:
+    name: chronyd
+    state: restarted

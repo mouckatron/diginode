@@ -1,0 +1,59 @@
+- name: Is hamlib installed?
+  shell: 'rigctl --version | grep {{ hamlib_version }}'
+  register: rigctl_status
+
+- when: rigctl_status.rc != 0
+  block:
+
+  - get_url:
+      url: https://github.com/Hamlib/Hamlib/releases/download/{{ hamlib_version }}/hamlib-{{ hamlib_version }}.tar.gz
+      dest: /home/pi/hamlib.tar.gz
+
+  - unarchive:
+      remote_src: true
+      src: /home/pi/hamlib.tar.gz
+      dest: /home/pi/
+      creates: /home/pi/hamlib-{{ hamlib_version }}
+
+  - name: Configure hamlib
+    shell:
+      cmd: ./configure
+      chdir: /home/pi/hamlib-{{ hamlib_version }}
+      creates: /home/pi/hamlib-{{ hamlib_version }}/Makefile
+
+  - name: Make hamlib
+    shell:
+      cmd: make -j4
+      chdir: /home/pi/hamlib-{{ hamlib_version }}
+      creates: /home/pi/hamlib-{{ hamlib_version }}/src/rigctl
+
+  - name: Install hamlib
+    shell:
+      cmd: make install
+      chdir: /home/pi/hamlib-{{ hamlib_version }}
+      creates: /usr/bin/rigctl
+
+  - shell: ldconfig
+
+- name: install flight scripts
+  template:
+    dest: /usr/local/bin/{{ item }}
+    src: '{{ item }}'
+    mode: 0755
+    owner: root
+    group: root
+  loop:
+    - rigctld_preflight.sh
+    - rigctld_postflight.sh
+
+- name: install systemd service
+  template:
+    src: rigctld.service.j2
+    dest: /etc/systemd/system/rigctld.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: true
